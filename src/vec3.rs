@@ -3,7 +3,7 @@
 use core::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Vec3 {
     e: [f64; 3],
 }
@@ -36,23 +36,11 @@ impl Vec3 {
     pub fn length_squared(&self) -> f64 {
         (self.e[0] * self.e[0]) + (self.e[1] * self.e[1]) + (self.e[2] * self.e[2])
     }
+}
 
-    pub fn dot(&self, rhs: Vec3) -> f64 {
-        (self.e[0] * rhs.e[0]) + (self.e[1] * rhs.e[1]) + (self.e[2] * rhs.e[2])
-    }
-
-    pub fn cross(&self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            e: [
-                (self.e[1] * rhs.e[2] - self.e[2] * rhs.e[1]),
-                (self.e[2] * rhs.e[0] - self.e[0] * rhs.e[2]),
-                (self.e[0] * rhs.e[1] - self.e[1] * rhs.e[0]),
-            ],
-        }
-    }
-
-    pub fn unit_vector(&self) -> Vec3 {
-        self.clone() / self.length()
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -176,4 +164,23 @@ impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} {} {}", self.e[0], self.e[1], self.e[2])
     }
+}
+
+// Functions for vecs
+pub fn dot(v: Vec3, rhs: Vec3) -> f64 {
+    (v.e[0] * rhs.e[0]) + (v.e[1] * rhs.e[1]) + (v.e[2] * rhs.e[2])
+}
+
+pub fn cross(v: Vec3, rhs: Vec3) -> Vec3 {
+    Vec3 {
+        e: [
+            (v.e[1] * rhs.e[2] - v.e[2] * rhs.e[1]),
+            (v.e[2] * rhs.e[0] - v.e[0] * rhs.e[2]),
+            (v.e[0] * rhs.e[1] - v.e[1] * rhs.e[0]),
+        ],
+    }
+}
+
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
 }
