@@ -5,7 +5,7 @@ use color::*;
 use ray::*;
 use vec3::Vec3;
 
-// Left off starting chapter 4
+// Left off 6.2
 
 fn main() {
     // Image
