@@ -2,6 +2,8 @@
 use core::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
+use crate::interval::Interval;
+
 #[derive(Clone, Copy)]
 pub struct Vec3 {
     e: [f64; 3],
@@ -187,14 +189,16 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
 pub type Color = Vec3;
 
 pub fn write_color(pixel_color: Color) {
-    let r = pixel_color.x();
-    let g = pixel_color.y();
-    let b = pixel_color.z();
+    let r = pixel_color.x() / 100.0;
+    let g = pixel_color.y() / 100.0;
+    let b = pixel_color.z() / 100.0;
 
-    // Translate the [0,1] cinoibebt values to the byte range [0,255]
-    let rbyte = (255.999 * r) as u64;
-    let gbyte = (255.999 * g) as u64;
-    let bbyte = (255.999 * b) as u64;
+    // Translate the [0,1] component values to the byte range [0,255]
+    let intensity: Interval = Interval::new_use(0.000, 0.999);
+
+    let rbyte = (256 as f64 * intensity.clamp(r)) as i32;
+    let gbyte = (256 as f64 * intensity.clamp(g)) as i32;
+    let bbyte = (256 as f64 * intensity.clamp(b)) as i32;
 
     // Write pixel color components
     println!("{} {} {}", rbyte, gbyte, bbyte);
