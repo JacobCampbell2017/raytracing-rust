@@ -1,11 +1,17 @@
 mod color;
 mod hittable;
 mod ray;
+mod rtweekend;
 mod sphere;
 mod vec3;
+
+use std::f64::INFINITY;
+
 use color::*;
+use hittable::{HitRecord, Hittable, HittableList};
 use ray::*;
-use vec3::Vec3;
+use sphere::Sphere;
+use vec3::*;
 
 // Left off 6.2
 
@@ -19,6 +25,18 @@ fn main() {
     if image_height < 1 {
         image_height = 1;
     }
+
+    // World
+    let mut world = HittableList::new();
+
+    world.add(Hittable::Sphere(Box::new(Sphere::new_use(
+        Point3::new_use(0.0, 0.0, -1.0),
+        0.5,
+    ))));
+    world.add(Hittable::Sphere(Box::new(Sphere::new_use(
+        Point3::new_use(0.0, -100.5, -1.0),
+        100.0,
+    ))));
 
     // Camera
     let focal_length = 1.0;
@@ -50,7 +68,7 @@ fn main() {
             let ray_direction = pixel_center - camera_center;
             let r: Ray = Ray::new_use(&camera_center, &ray_direction);
 
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, Hittable::HittableList(Box::new(world.clone())));
             write_color(pixel_color);
         }
     }
@@ -65,4 +83,15 @@ fn main() {
     let neg_vec = -vector2.clone();
     eprintln!("{}\t{} {}", vector2, neg_vec, vector1);
     */
+}
+
+fn ray_color(r: &Ray, world: Hittable) -> Color {
+    let mut rec: HitRecord = HitRecord::new();
+    if world.hit(*r, 0.0, INFINITY, &mut rec) {
+        return 0.5 * (rec.normal + Color::new_use(1.0, 1.0, 1.0));
+    }
+
+    let unit_direction = unit_vector(*r.direction());
+    let a = 0.5 * (unit_direction.y() + 1.0);
+    (1.0 - a) * Color::new_use(1.0, 1.0, 1.0) + a * Color::new_use(0.5, 0.7, 1.0)
 }

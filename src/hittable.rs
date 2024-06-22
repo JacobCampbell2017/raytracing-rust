@@ -2,6 +2,7 @@ use crate::ray::*;
 use crate::sphere::Sphere;
 use crate::vec3::*;
 
+#[derive(Clone)]
 pub enum Hittable {
     Sphere(Box<Sphere>),
     HittableList(Box<HittableList>),
@@ -51,6 +52,7 @@ impl HitRecord {
 }
 
 // Struct for list of hittables
+#[derive(Clone)]
 pub struct HittableList {
     objects: Vec<Hittable>,
 }
@@ -75,14 +77,19 @@ impl HittableList {
     }
 
     pub fn hit(&self, r: Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool {
-        let temp_rec = HitRecord::new();
-        let hit_anything = false;
-        let closest_so_far = ray_tmax;
+        let mut temp_rec = HitRecord::new();
+        let mut hit_anything = false;
+        let mut closest_so_far = ray_tmax;
 
         for object in &self.objects {
-            if object.hit(r, ray_tmin, closest_so_far, &mut temp_rec)
+            if object.hit(r, ray_tmin, closest_so_far, &mut temp_rec) {
+                hit_anything = true;
+                closest_so_far = temp_rec.t;
+                *rec = temp_rec;
+            }
         }
-        true
+
+        hit_anything
     }
 }
 
