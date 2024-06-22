@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use crate::color::*;
 use crate::hittable::*;
 use crate::interval::*;
 use crate::ray::*;

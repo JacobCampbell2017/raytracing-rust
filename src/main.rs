@@ -1,5 +1,4 @@
 mod camera;
-mod color;
 mod hittable;
 mod interval;
 mod ray;
@@ -11,7 +10,6 @@ use camera::*;
 use hittable::{Hittable, HittableList};
 use ray::*;
 use sphere::Sphere;
-use vec3::*;
 
 // Left off 6.2
 
