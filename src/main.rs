@@ -1,5 +1,6 @@
 mod color;
 mod hittable;
+mod interval;
 mod ray;
 mod rtweekend;
 mod sphere;
@@ -9,6 +10,7 @@ use std::f64::INFINITY;
 
 use color::*;
 use hittable::{HitRecord, Hittable, HittableList};
+use interval::Interval;
 use ray::*;
 use sphere::Sphere;
 use vec3::*;
@@ -87,7 +89,7 @@ fn main() {
 
 fn ray_color(r: &Ray, world: Hittable) -> Color {
     let mut rec: HitRecord = HitRecord::new();
-    if world.hit(*r, 0.0, INFINITY, &mut rec) {
+    if world.hit(*r, Interval::new_use(0.0, INFINITY), &mut rec) {
         return 0.5 * (rec.normal + Color::new_use(1.0, 1.0, 1.0));
     }
 

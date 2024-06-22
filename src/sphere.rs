@@ -1,4 +1,6 @@
+#![allow(dead_code)]
 use crate::hittable::*;
+use crate::interval::*;
 use crate::ray::*;
 use crate::vec3::*;
 
@@ -16,7 +18,7 @@ impl Sphere {
         }
     }
 
-    pub fn hit(&self, r: Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool {
+    pub fn hit(&self, r: Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let oc = self.center - *r.origin();
         let a = r.direction().length_squared();
         let h = dot(*r.direction(), oc);
@@ -32,9 +34,9 @@ impl Sphere {
 
         // Find the nearest root thta lies in the acceptable range.
         let mut root = (h - sqrtd) / a;
-        if root <= ray_tmin || ray_tmax <= root {
+        if !ray_t.surrounds(root) {
             root = (h + sqrtd) / a;
-            if root <= ray_tmin || ray_tmax <= root {
+            if !ray_t.surrounds(root) {
                 return false;
             }
         }
