@@ -25,6 +25,10 @@ impl Material {
             Material::Metal(m) => m.scatter(r_in, rec, attenuation, scattered),
         }
     }
+
+    pub fn new() -> Self {
+        Material::Lambertian(Box::new(Lambertian::new(Color::new())))
+    }
 }
 
 #[derive(Clone, Copy)]

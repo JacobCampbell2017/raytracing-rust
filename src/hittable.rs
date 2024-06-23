@@ -26,7 +26,7 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
-    pub mat: Option<Material>,
+    pub mat: Material,
 }
 
 impl HitRecord {
@@ -51,7 +51,7 @@ impl HitRecord {
             normal: Vec3::new(),
             t: 0.0,
             front_face: false,
-            mat: None,
+            mat: Material::new(),
         }
     }
 }

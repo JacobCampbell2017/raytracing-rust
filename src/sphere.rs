@@ -9,15 +9,15 @@ use crate::vec3::*;
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    mat: Option<Material>,
+    mat: Material,
 }
 
 impl Sphere {
-    pub fn new_use(c: Point3, r: f64) -> Self {
+    pub fn new_use(c: Point3, r: f64, mat_t: Material) -> Self {
         Sphere {
             center: c,
             radius: r,
-            mat: None,
+            mat: mat_t,
         }
     }
 
