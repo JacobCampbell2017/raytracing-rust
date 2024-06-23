@@ -3,13 +3,14 @@
 use crate::{
     hittable::HitRecord,
     ray::Ray,
-    vec3::{random_unit_vector, reflect, Color},
+    vec3::{dot, random_unit_vector, reflect, refract, unit_vector, Color},
 };
 
 #[derive(Clone)]
 pub enum Material {
     Lambertian(Box<Lambertian>),
     Metal(Box<Metal>),
+    Dielectric(Box<Dielectric>),
 }
 
 impl Material {
@@ -23,6 +24,7 @@ impl Material {
         match self {
             Material::Lambertian(l) => l.scatter(r_in, rec, attenuation, scattered),
             Material::Metal(m) => m.scatter(r_in, rec, attenuation, scattered),
+            Material::Dielectric(d) => d.scatter(r_in, rec, attenuation, scattered),
         }
     }
 
@@ -43,7 +45,7 @@ impl Lambertian {
 
     pub fn scatter(
         &self,
-        r_in: &Ray,
+        _r_in: &Ray,
         rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
@@ -64,23 +66,62 @@ impl Lambertian {
 #[derive(Clone)]
 pub struct Metal {
     albedo: Color,
+    fuzz: f64,
 }
 
 impl Metal {
-    pub fn new(albedo_t: Color) -> Self {
-        Metal { albedo: albedo_t }
+    pub fn new(albedo_t: Color, fuzz_t: f64) -> Self {
+        Metal {
+            albedo: albedo_t,
+            fuzz: (if fuzz_t < 1.0 { fuzz_t } else { 1.0 }),
+        }
     }
 
     pub fn scatter(
         &self,
         r_in: &Ray,
         rec: &HitRecord,
-        attenuation: &mut Color,
+        attenuaion: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
-        let reflected = reflect(*r_in.direction(), rec.normal);
+        let mut reflected = reflect(*r_in.direction(), rec.normal);
+        reflected = unit_vector(reflected) + (self.fuzz * random_unit_vector());
         *scattered = Ray::new_use(&rec.p, &reflected);
-        *attenuation = self.albedo;
+        *attenuaion = self.albedo;
+        dot(*scattered.direction(), rec.normal) > 0.0
+    }
+}
+
+#[derive(Clone)]
+pub struct Dielectric {
+    refraction_index: f64,
+}
+
+impl Dielectric {
+    pub fn new(r_index: f64) -> Self {
+        Dielectric {
+            refraction_index: r_index,
+        }
+    }
+
+    pub fn scatter(
+        &self,
+        r_in: &Ray,
+        rec: &HitRecord,
+        attentuation: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        *attentuation = Color::new_use(1.0, 1.0, 1.0);
+        let ri = if rec.front_face {
+            1.0 / self.refraction_index
+        } else {
+            self.refraction_index
+        };
+
+        let unit_direction = unit_vector(*r_in.direction());
+        let refracted = refract(unit_direction, rec.normal, ri);
+
+        *scattered = Ray::new_use(&rec.p, &refracted);
         true
     }
 }

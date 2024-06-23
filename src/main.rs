@@ -9,7 +9,7 @@ mod vec3;
 
 use camera::*;
 use hittable::{Hittable, HittableList};
-use material::{Lambertian, Material, Metal};
+use material::{Dielectric, Lambertian, Material, Metal};
 use ray::*;
 use sphere::Sphere;
 use vec3::Color;
@@ -24,8 +24,8 @@ fn main() {
         Material::Lambertian(Box::new(Lambertian::new(Color::new_use(0.8, 0.8, 0.0))));
     let material_center =
         Material::Lambertian(Box::new(Lambertian::new(Color::new_use(0.1, 0.2, 0.5))));
-    let material_left = Material::Metal(Box::new(Metal::new(Color::new_use(0.8, 0.8, 0.8))));
-    let material_right = Material::Metal(Box::new(Metal::new(Color::new_use(0.8, 0.6, 0.2))));
+    let material_left = Material::Dielectric(Box::new(Dielectric::new(1.50)));
+    let material_right = Material::Metal(Box::new(Metal::new(Color::new_use(0.8, 0.6, 0.2), 1.0)));
 
     world.add(Hittable::Sphere(Box::new(Sphere::new_use(
         Point3::new_use(0.0, 0.0, -1.2),
