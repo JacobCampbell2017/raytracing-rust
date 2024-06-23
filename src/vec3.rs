@@ -41,6 +41,11 @@ impl Vec3 {
         (self.e[0] * self.e[0]) + (self.e[1] * self.e[1]) + (self.e[2] * self.e[2])
     }
 
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s)
+    }
+
     pub fn random() -> Self {
         Vec3::new_use(random_double(), random_double(), random_double())
     }
@@ -223,13 +228,24 @@ pub fn random_on_hemisphere(normal: Vec3) -> Vec3 {
     }
 }
 
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * dot(v, n) * n
+}
+
+pub fn linear_to_gamma(linear_component: f64) -> f64 {
+    if linear_component > 0.0 {
+        return linear_component.sqrt();
+    }
+    0.0
+}
+
 // COLOR UTIL
 pub type Color = Vec3;
 
 pub fn write_color(pixel_color: Color) {
-    let r = pixel_color.x() / 100.0;
-    let g = pixel_color.y() / 100.0;
-    let b = pixel_color.z() / 100.0;
+    let r = linear_to_gamma(pixel_color.x() / 100.0);
+    let g = linear_to_gamma(pixel_color.y() / 100.0);
+    let b = linear_to_gamma(pixel_color.z() / 100.0);
 
     // Translate the [0,1] component values to the byte range [0,255]
     let intensity: Interval = Interval::new_use(0.000, 0.999);

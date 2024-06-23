@@ -1,13 +1,15 @@
 #![allow(dead_code)]
 use crate::hittable::*;
 use crate::interval::*;
+use crate::material::Material;
 use crate::ray::*;
 use crate::vec3::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    mat: Option<Material>,
 }
 
 impl Sphere {
@@ -15,6 +17,7 @@ impl Sphere {
         Sphere {
             center: c,
             radius: r,
+            mat: None,
         }
     }
 
@@ -44,6 +47,7 @@ impl Sphere {
         rec.p = r.at(rec.t);
         let outward_normal: Vec3 = (rec.p - self.center) / self.radius;
         rec.set_face_normal(r, outward_normal);
+        rec.mat = self.mat.clone();
 
         true
     }

@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use crate::interval::*;
+use crate::material::*;
 use crate::ray::*;
 use crate::sphere::Sphere;
 use crate::vec3::*;
@@ -19,12 +20,13 @@ impl Hittable {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub mat: Option<Material>,
 }
 
 impl HitRecord {
@@ -49,6 +51,7 @@ impl HitRecord {
             normal: Vec3::new(),
             t: 0.0,
             front_face: false,
+            mat: None,
         }
     }
 }
@@ -90,8 +93,8 @@ impl HittableList {
                 &mut temp_rec,
             ) {
                 hit_anything = true;
-                closest_so_far = temp_rec.t;
-                *rec = temp_rec;
+                closest_so_far = temp_rec.clone().t;
+                *rec = temp_rec.clone();
             }
         }
 
