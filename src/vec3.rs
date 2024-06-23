@@ -2,7 +2,10 @@
 use core::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
-use crate::interval::Interval;
+use crate::{
+    interval::Interval,
+    rtweekend::{random_double, random_double_2},
+};
 
 #[derive(Clone, Copy)]
 pub struct Vec3 {
@@ -36,6 +39,18 @@ impl Vec3 {
 
     pub fn length_squared(&self) -> f64 {
         (self.e[0] * self.e[0]) + (self.e[1] * self.e[1]) + (self.e[2] * self.e[2])
+    }
+
+    pub fn random() -> Self {
+        Vec3::new_use(random_double(), random_double(), random_double())
+    }
+
+    pub fn random_2(min: f64, max: f64) -> Self {
+        Vec3::new_use(
+            random_double_2(min, max),
+            random_double_2(min, max),
+            random_double_2(min, max),
+        )
     }
 }
 
@@ -186,6 +201,29 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
 
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_2(-1.0, 1.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    unit_vector(random_in_unit_sphere())
+}
+
+pub fn random_on_hemisphere(normal: Vec3) -> Vec3 {
+    let on_unit_sphere = random_unit_vector();
+    if dot(on_unit_sphere, normal) > 0.0 {
+        on_unit_sphere
+    } else {
+        -on_unit_sphere
+    }
+}
+
+// COLOR UTIL
 pub type Color = Vec3;
 
 pub fn write_color(pixel_color: Color) {
@@ -196,9 +234,9 @@ pub fn write_color(pixel_color: Color) {
     // Translate the [0,1] component values to the byte range [0,255]
     let intensity: Interval = Interval::new_use(0.000, 0.999);
 
-    let rbyte = (256 as f64 * intensity.clamp(r)) as i32;
-    let gbyte = (256 as f64 * intensity.clamp(g)) as i32;
-    let bbyte = (256 as f64 * intensity.clamp(b)) as i32;
+    let rbyte = (256.000 * intensity.clamp(r)) as i32;
+    let gbyte = (256.000 * intensity.clamp(g)) as i32;
+    let bbyte = (256.000 * intensity.clamp(b)) as i32;
 
     // Write pixel color components
     println!("{} {} {}", rbyte, gbyte, bbyte);
