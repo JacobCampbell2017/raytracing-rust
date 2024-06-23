@@ -120,8 +120,8 @@ impl Camera {
         if world.hit(*r, Interval::new_use(0.001, INFINITY), &mut rec) {
             let scattered = Ray::new();
             let attenuation = Color::new();
-            let direction = rec.normal + random_unit_vector();
-            return 0.5 * Self::ray_color(&Ray::new_use(&rec.p, &direction), depth - 1, world);
+
+            
         }
 
         let unit_direction = unit_vector(*r.direction());
