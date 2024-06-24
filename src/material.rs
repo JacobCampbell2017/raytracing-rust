@@ -3,7 +3,8 @@
 use crate::{
     hittable::HitRecord,
     ray::Ray,
-    vec3::{dot, random_unit_vector, reflect, refract, unit_vector, Color},
+    rtweekend::random_double,
+    vec3::{dot, random_unit_vector, reflect, refract, unit_vector, Color, Vec3},
 };
 
 #[derive(Clone)]
@@ -119,9 +120,26 @@ impl Dielectric {
         };
 
         let unit_direction = unit_vector(*r_in.direction());
-        let refracted = refract(unit_direction, rec.normal, ri);
+        let cos_theta = f64::min(dot(-unit_direction, rec.normal), 1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
-        *scattered = Ray::new_use(&rec.p, &refracted);
+        let cannot_refract = ri * sin_theta > 1.0;
+        let direction: Vec3;
+
+        if cannot_refract || Self::reflectance(&self, cos_theta, ri) > random_double() {
+            direction = reflect(unit_direction, rec.normal);
+        } else {
+            direction = refract(unit_direction, rec.normal, ri);
+        }
+
+        *scattered = Ray::new_use(&rec.p, &direction);
         true
+    }
+
+    fn reflectance(&self, cosine: f64, refraction_index: f64) -> f64 {
+        // Use Schlick's approximation for reflectance
+        let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        r0 = r0 * r0;
+        r0 + (1.0 - r0) * f64::powf(1.0 - cosine, 5.0)
     }
 }
